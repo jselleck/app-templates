@@ -1,0 +1,71 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: app-template
+  namespace: default
+  labels:
+    app: app-template
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: app-template
+  strategy:
+    canary:
+      steps:
+      - setWeight: 50
+      - pause:
+          duration: 20s
+      - setWeight: 100
+  template:
+    metadata:
+      labels:
+        app: app-template
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: app-template
+        image: docker.io/justinselleck/demo-app:v1.0.0
+        ports:
+        - containerPort: 8080
+        env:
+        - name: APP_NAME
+          value: "Demo App"
+        - name: DEFAULT_CATEGORY
+          value: ""
+        - name: SAFE_MODE
+          value: "true"
+        - name: APP_VERSION
+          value: "v1.0.0"
+        - name: APP_COLOR
+          value: "blue"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop: ["ALL"]
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 20
+          periodSeconds: 20
