@@ -21,6 +21,8 @@ spec:
     metadata:
       labels:
         app: app-template
+        data-type: classified
+
     spec:
       securityContext:
         runAsNonRoot: true
