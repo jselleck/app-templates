@@ -31,7 +31,7 @@ spec:
           type: RuntimeDefault
       containers:
       - name: app-template
-        image: docker.io/justinselleck/demo-app:v1.0.0
+        image: docker.io/justinselleck/demo-app:v1.0.1
         ports:
         - containerPort: 8080
         env:
